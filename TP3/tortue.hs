@@ -1,4 +1,5 @@
 import Graphics.Gloss
+import dragon.hs
 
 type Symbole  = Char
 type Mot      = [Symbole]
