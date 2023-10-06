@@ -1,14 +1,16 @@
+import Graphics.Gloss
+
 type Symbole  = Char
 type Mot      = [Symbole]
 type Axiome   = Mot
 type Regles   = Symbole -> Mot
 type LSysteme = [Mot]
 type EtatTortue = (Point, Float)
-type Config = (EtatTortue 
-              ,Float     
-              ,Float     
-              ,Float      
-              ,[Symbole]) 
+type Config = (EtatTortue -- État initial de la tortue
+              ,Float      -- Longueur initiale d’un pas
+              ,Float      -- Facteur d’échelle
+              ,Float      -- Angle pour les rotations de la tortue
+              ,[Symbole]) -- Liste des symboles compris par la tortue
 type EtatDessin = (EtatTortue, Path)
 
 
@@ -17,65 +19,72 @@ type EtatDessin = (EtatTortue, Path)
 motSuivant :: Regles -> Mot -> Mot
 motSuivant r [] = []
 motSuivant r (x:xs) = r x ++ motSuivant r xs
- 
+
+regles :: Symbole -> Mot
+regles r
+      |r == '+' = ['+']
+      |r == '-' = ['-']
+      |r == 'F' = "F-F++F-F"
+      |otherwise = []
+
+
 
 lsysteme :: Axiome -> Regles -> LSysteme
 lsysteme [] r = []
-lsysteme ax r = [ax, iterate(motSuivant r ax)]
-              
-              
+lsysteme ax r  = [ax, iterate(\x -> motSuivant x r)ax]
+
+
 etatInitial :: Config -> EtatTortue
-etatInitial ((a,b),c,d,e,f) = (a,b)
+etatInitial (e,_,_,_,_) = e
 
 
 
 longueurPas :: Config -> Float
-longueurPas ((a,b),c,d,e,f) = c
+longueurPas (_,l,_,_,_) = l
 
 
 
 facteurEchelle :: Config -> Float
-facteurEchelle ((a,b),c,d,e,f) = d
+facteurEchelle (_,_,f,_,_) = f
 
 
 angle :: Config -> Float
-angle ((a,b),c,d,e,f) = e
+angle (_,_,_,a,_) = a
 
 
 
 symbolesTortue :: Config -> [Symbole]
-symbolesTortue ((a,b),c,d,e,f) = f
+symbolesTortue (_,_,_,_,s) = s
 
 
 
 avance :: Config -> EtatTortue -> EtatTortue
-avance a((,b),c,d,e,f) (a,b)= (a,b)
+avance (_,d,_,_,_) ((x,y),cap) =  ((x+d*cos(cap),y+d*sin(cap)),cap)
 
 
 
 tourneAGauche :: Config -> EtatTortue -> EtatTortue
-tourneAGauche a((,b),c,d,e,f) (a,b)= (a,b)
+tourneAGauche (_,_,_,a,_) ((x,y),cap)=((x,y),cap+a)
 
 
 
 
 tourneADroite :: Config -> EtatTortue -> EtatTortue
-tourneADroite a((,b),c,d,e,f) (a,b)= (b,a)
+tourneADroite (_,_,_,a,_) ((x,y),cap)=((x,y),cap-a)
 
 
-filtreSymbolesTortue :: Config -> Mot -> Mot
-filtreSymbolesTortue a((,b),c,d,e,f) x = y
-
-
-
-interpreteSymbole :: Config -> EtatDessin -> Symbole -> EtatDessin
-interpreteSymboles a((,b),c,d,e,f) (a,b) x =(a,b)
-
-
-interpreteMot :: Config -> Mot -> Picture
-interepreteMot a((,b),c,d,e,f) x
+--filtreSymbolesTortue :: Config -> Mot -> Mot
+--filtreSymbolesTortue c a = a
 
 
 
-lsystemeAnime :: LSysteme -> Config -> Float -> Picture
+--interpreteSymbole :: Config -> EtatDessin -> Symbole -> EtatDessin
+--interpreteSymboles c e = a b
 
+
+--interpreteMot :: Config -> Mot -> Picture
+--interepreteMot c m = a
+
+
+
+--lsystemeAnime :: LSysteme -> Config -> Float -> Picture
