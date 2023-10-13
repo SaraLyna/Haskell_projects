@@ -1,5 +1,4 @@
 import Graphics.Gloss
-import dragon.hs
 
 type Symbole  = Char
 type Mot      = [Symbole]
@@ -15,6 +14,10 @@ type Config = (EtatTortue -- État initial de la tortue
 type EtatDessin = (EtatTortue, Path)
 
 
+
+dessin = interpreteMot (((-150,0),0),100,1,pi/3,"F+-") "F+F--F+F"
+
+main = display (InWindow "L-système" (1000, 1000) (0, 0)) white dessin
 
 
 motSuivant :: Regles -> Mot -> Mot
@@ -89,3 +92,5 @@ tourneADroite (_,_,_,a,_) ((x,y),cap)=((x,y),cap-a)
 
 
 --lsystemeAnime :: LSysteme -> Config -> Float -> Picture
+
+--pictures :: [Picture] -> Picture

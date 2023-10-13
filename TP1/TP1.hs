@@ -1,5 +1,5 @@
 somme :: [Int] -> Int
-somme [] = 0          -- La somme d'une liste vide est 0
+somme [] = 0          
 somme (x:xs) = x + somme xs
 
 last' :: [a] -> a
@@ -28,12 +28,6 @@ map' :: (a -> b) -> [a] -> [b]
 map' _ [] = []
 map' f (x:xs) = f x : map' f xs
 
-
-
---x = (!!) l définit une fonction x qui agit comme l'opérateur 
---d'accès !! mais avec l préalablement fixé en tant que liste.
---Elle vous permet d'accéder aux éléments de l en spécifiant
---l'indice en utilisant la fonction x.
 
 
 longueur :: [a] -> Int
