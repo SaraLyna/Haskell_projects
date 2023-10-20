@@ -51,12 +51,12 @@ estParfait' arbre = let h = fromIntegral (hauteur arbre)
 parfait :: Int -> [(c, a)] -> Arbre c a
 parfait _ [] = Feuille
 parfait 0 _ = Feuille
-parfait h l= Noeud fst.parfait' fg fd
+parfait h l= Noeud fst.parfait' snd.parfait' fg fd
     where fg = (parfait (h-1) take h l )
           fd = (parfait (h-1) drop h l)
 
 parfait' :: [b] -> (c, a)
-parfait' (x:xs) = (Noeud fg x fd, xs)
+parfait' (x:xs) = (Noeud fg fd, xs)
         where 
             (fg, a)= parfait' xs
             (fd, b)= parfait' a
