@@ -28,7 +28,7 @@ dimension (Noeud _ _ g d) f = 1 + (dimension g f) `f` (dimension d f )
 peigneGauche :: [(c,a)] -> Arbre c a
 peigneGauche [] = Feuille
 peigneGauche ((c,a):cv) = Noeud c a Feuille (peigneGauche cv)
-
+--peigneGauche = foldr(\(c,a) acc -> Noeud c a acc Feuille) Feuille
 
 
 prop_hauteurPeigne xs = length xs == hauteur (peigneGauche xs)
@@ -74,25 +74,36 @@ unicode (x:xs) = ((),x): unicode xs
  
 aplatit :: Arbre c a -> [(c, a)]
 aplatit Feuille = []
-aplatit Noeud c a fg fd = aplatit fg ++ [(c,a)] ++ aplatit fd
+aplatit (Noeud c a fg fd) = aplatit fg ++ [(c,a)] ++ aplatit fd
 
-map snd (aplatit parfait4) == "abcdefghijklmno"
+--map snd (aplatit parfait4) == "abcdefghijklmno"
 
 
 element :: Eq a => a -> Arbre c a -> Bool
-element e Feuille = False
-element e Noeud c a fg fd = element  e fg || element e fd || e==a
+element _ Feuille = False
+element e (Noeud _ a fg fd) = element  e fg || element e fd || e==a
 
 
 --a [color=red, fontcolor=red]
 
---noeud :: (c -> String) -> (a -> String) -> (c,a) -> String
+noeud :: (c -> String) -> (a -> String) -> (c,a) -> String
+noeud colorToSTring valueToString (c,a) = "\"" ++ valueToString a ++ "\" [color= "++ colorToSTring c ++", label\""++ valueToString a ++ "\"];"
 
---arcs :: Arbre c a -> [(a,a)]
+arcs :: Arbre c a -> [(a,a)]
+arcs (Noeud _ a g d) = arcs g ++ [(a, valueDroite d)] ++ arcs d
+        where 
+         valueDroite Feuille = a
+         valueDroite (Noeud _ val _ _) = val
 
---arc :: (a -> String) -> (a,a) -> String
 
---dotise :: String -> (c -> String) -> (a -> String) -> Arbre c a -> String
+
+arc :: (a -> String) -> (a,a) -> String
+arc valueToString (s,d) = " \"" ++ valueToString s ++ "\" -> \"" ++valueToString d ++ "\";"
+
+
+
+dotise :: String -> (c -> String) -> (a -> String) -> Arbre c a -> String
+dotise nom colorToSTring valueToString arbre = " arbre " ++ nom ++ "{\n" ++ " node[shape=circle]; \n" ++ unlines (map(noeud colorToSTring valueToString) (aplatit arbre)) ++ unlines(map(arc valueToString)(arcs arbre)) ++ "}"
 
 
 
@@ -100,7 +111,7 @@ element e Noeud c a fg fd = element  e fg || element e fd || e==a
 
 
 
---data Couleur = red | black
+data Couleur = Red | Black deriving (Show, Eq)
 
 --data ArbreRN = Arbre red Char | Arbre black Char
 
