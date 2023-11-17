@@ -63,43 +63,43 @@ espacesP =  many(carQuand (`elem` " " )) >> pure ()
 
 
 nomP :: Parser Nom
-
 nomP = some (carQuand (`elem` (['a'..'z']++['A'..'Z']))) >>= \nom -> espacesP >> pure nom
 
 
---varP :: Parser Expression
---varP =
+varP :: Parser Expression
+varP = some (carQuand (`elem` (['a'..'z']++['A'..'Z']))) >>= \nom -> espacesP >> pure (Var nom)
 
 
---applique :: [Expression] -> Expression
---applique =
+applique :: [Expression] -> Expression
+applique [e] = e
+applique (e1:e2:e3) = applique ((App e1 e2) : e3)
 
 
---exprP :: Parser Expression
---exprP =
+
+exprP :: Parser Expression
+exprP = varP <|> lambdaP <|> exprParentheseeP <|> nombreP <|> booleenP
+
+exprsP :: Parser Expression
+exprsP = (some exprP)  >>= \e -> pure ( applique e)
 
 
---exprsP :: Parser Expression
---exprsP =
-
-
---lambdaP :: Parser Expression
---lambdaP =
+lambdaP :: Parser Expression
+lambdaP = chaine "\\ " x " -> " e >>= \e -> varP x >> exprsP e
 
 
 --exprParentheseeP :: Parser Expression
 --exprParentheseeP =
 
---nombreP :: Parser Expression
---nombreP =
+nombreP :: Parser Expression
+nombreP = some (carQuand (`elem` (['0'..'9']))) >>= \nombre -> pure (Lit (Entier(read nombre)))
 
 
---booleenP :: Parser Expression
---booleenP =
+booleenP :: Parser Expression
+booleenP =  chaine "True" >>= \bool -> pure (Lit (Bool (read bool)))
 
 
---expressionP :: Parser Expression
---expressionP =
+expressionP :: Parser Expression
+expressionP = exprsP >>= \e -> espacesP >> pure (e)
 
 
 --ras :: String -> Expression
