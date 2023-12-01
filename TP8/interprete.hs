@@ -1,4 +1,7 @@
 import Parser
+import Data.Maybe
+import Data.List
+import Control.Monad (liftM, ap)
 
 
 type Nom = String
@@ -75,7 +78,7 @@ applique (e1:e2:e3) = applique ((App e1 e2) : e3)
 
 
 exprP :: Parser Expression
-exprP = varP <|> lambdaP  <|> exprParentheseeP <|> nombreP <|> booleenP
+exprP = booleenP <|> varP <|> lambdaP  <|> exprParentheseeP <|> nombreP
 
 exprsP :: Parser Expression
 exprsP = (some exprP)  >>= \e -> pure ( applique e)
@@ -125,7 +128,7 @@ ras  string
 --------------------------------------------------------------------------------------------------
 
 data ValeurA = VLitteralA Litteral
-             | VFonctionA (ValeurA -> ValeurA) 
+             | VFonctionA (ValeurA -> ValeurA)
 
 instance Show ValeurA where
     show (VFonctionA _) = "λ"
@@ -139,12 +142,23 @@ instance Show ValeurA where
 type Environnement a = [(Nom, a)]
 
 
---interpreteA :: Environnement ValeurA -> Expression -> ValeurA
---interpreteA 
+-- envA :: Environnement ValeurA
+-- envA = [ ("neg",   negA)
+--        , ("add",   releveBinOpEntierA (+))
+--        , ("soust", releveBinOpEntierA (-))
+--        , ("mult",  releveBinOpEntierA (*))
+--        , ("quot",  releveBinOpEntierA quot) ]
 
+
+
+interpreteA :: Environnement ValeurA -> Expression -> ValeurA
+interpreteA e (Var x) = fromJust (lookup x e)
+interpreteA e (Lam x exp) = VFonctionA (\f -> interpreteA ((x, f) : e) exp)
+interpreteA e (Lit x) = VLitteralA x
+interpreteA e (App exp1 exp2) =VFonctionA (\exp1 -> interpreteA e exp2)
 
 -- negA :: ValeurA
--- negA 
+-- negA a = interpreteA 
 
 
 -- addA :: ValeurA
@@ -161,10 +175,10 @@ type Environnement a = [(Nom, a)]
 
 ----------------------------------------------------------------------------------------
 -- data Either a b = Left a
---                 | Right b
+--                  | Right b
 
 -- data ValeurB = VLitteralB Litteral
---              | VFonctionB (ValeurB -> ErrValB)
+--               | VFonctionB (ValeurB -> ErrValB)
 
 -- type MsgErreur = String
 -- type ErrValB   = Either MsgErreur ValeurB
@@ -186,11 +200,11 @@ type Environnement a = [(Nom, a)]
 -- main :: IO ()
 
 ----------------------------------------------------------------------------------------
--- data ValeurC = VLitteralC Litteral
---              | VFonctionC (ValeurC -> OutValC)
+data ValeurC = VLitteralC Litteral
+             | VFonctionC (ValeurC -> OutValC)
 
--- type Trace   = String
--- type OutValC = (Trace, ValeurC)
+type Trace   = String
+type OutValC = (Trace, ValeurC)
 
 -- instance Show ValeurC where
 --     ....
@@ -203,8 +217,8 @@ type Environnement a = [(Nom, a)]
 
 
 ---------------------------------------------------------------------------------------
--- data ValeurM m = VLitteralM Litteral
---                | VFonctionM (ValeurM m -> m (ValeurM m))
+data ValeurM m = VLitteralM Litteral
+               | VFonctionM (ValeurM m -> m (ValeurM m))
 
 
 -- instance Show ValeurM where
@@ -230,8 +244,6 @@ type Environnement a = [(Nom, a)]
 -- (>>=) :: SimpleM a -> (a -> SimpleM b) -> SimpleM b
 
 
-
--- import Control.Monad (liftM, ap)
 
 -- instance Functor SimpleM where
 --     fmap = liftM
@@ -264,18 +276,18 @@ type Environnement a = [(Nom, a)]
 --               deriving Show
 
 
--- interpreteMT :: InterpreteM TraceM
--- interpreteMT = interpreteM
+-- -- interpreteMT :: InterpreteM TraceM
+-- -- interpreteMT = interpreteM
 
 -- pingM :: ValeurM TraceM
 -- pingM = VFonctionM (\v -> T ("p", v))
 
 
 
--- interpreteMT' :: InterpreteM TraceM
+-- -- interpreteMT' :: InterpreteM TraceM
 
 
---------------------------------------------------------------------------------------------
+-- --------------------------------------------------------------------------------------------
 -- data ErreurM v = Succes v
 --                | Erreur String
 --                deriving Show
